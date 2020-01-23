@@ -8,10 +8,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.example.popularmovies.model.Movie;
+import com.example.popularmovies.utilities.JSONUtils;
 import com.example.popularmovies.utilities.NetworkUtils;
+
+import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,7 +54,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             if ( s != null && !s.equals("")) {
-                mPopularMoviesTextView.setText(s);
+                try {
+                    List<Movie> movies = JSONUtils.getMovieListFromJSON(s);
+                    for (int i=0;i<movies.size(); i++) {
+                        Movie movie = movies.get(i);
+                        mPopularMoviesTextView.append(movie.toString()+"\n\n\n");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    mPopularMoviesTextView.setText("Oooops! Something went wrong");
+                }
             }
         }
     }
