@@ -10,7 +10,7 @@ import java.net.URL;
 import java.util.Scanner;
 
 public class NetworkUtils {
-    final static String TMDB_BASE_URL = "https://api.themoviedb.org/3/movie/popular";
+    final static String TMDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
     final static String PARAM_API_KEY = "api_key";
 
     final static String TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
@@ -21,11 +21,8 @@ public class NetworkUtils {
     }
 
 
-    /* Please replace SecretCodes.getApiKey() with appropriate key */
-    public static URL buildUrl() {
-        Uri uri = Uri.parse(TMDB_BASE_URL).buildUpon()
-                .appendQueryParameter(PARAM_API_KEY, SecretCodes.getApiKey())
-                .build();
+    public static URL getURL(Uri.Builder builder) {
+        Uri uri =  builder.appendQueryParameter(PARAM_API_KEY, SecretCodes.getApiKey()).build();
         URL url = null;
         try {
             url = new URL(uri.toString());
@@ -34,6 +31,17 @@ public class NetworkUtils {
         }
 
         return url;
+    }
+
+    /* Please replace SecretCodes.getApiKey() with appropriate key */
+    public static URL buildPopularMoviesUrl() {
+        Uri.Builder uriBuilder = Uri.parse(TMDB_BASE_URL+"popular").buildUpon();
+        return getURL(uriBuilder);
+    }
+
+    public static URL buildTopRatedMoviesUrl() {
+        Uri.Builder uriBuilder = Uri.parse(TMDB_BASE_URL+"top_rated").buildUpon();
+        return getURL(uriBuilder);
     }
 
     public static String fetchMovieDataFromHttp(URL url) throws IOException {

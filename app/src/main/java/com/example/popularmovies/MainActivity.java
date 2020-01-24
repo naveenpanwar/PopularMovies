@@ -8,6 +8,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.example.popularmovies.model.Movie;
@@ -52,9 +55,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getPopularMovies() {
-        URL url = NetworkUtils.buildUrl();
+        URL url = NetworkUtils.buildPopularMoviesUrl();
         new PopularMoviesAsyncTask(this).execute(url);
     }
+
+    private void getTopRatedMovies() {
+        URL url = NetworkUtils.buildTopRatedMoviesUrl();
+        new PopularMoviesAsyncTask(this).execute(url);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.sorting_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if( id == R.id.action_sort_by_popularity) {
+            getPopularMovies();
+        }
+        else {
+            getTopRatedMovies();
+        }
+
+        return true;
+    }
+
 
     public class PopularMoviesAsyncTask extends AsyncTask<URL,Void, String> {
         private Context mContext;

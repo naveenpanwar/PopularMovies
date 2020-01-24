@@ -63,7 +63,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
             Picasso.get().load(uri)
                     .placeholder(R.drawable.ic_launcher_background)
                     .error(R.drawable.ic_launcher_foreground)
-                    .fit().centerInside()
+                    .fit().centerCrop()
                     .into(movieImageView, new Callback() {
                         @Override
                         public void onSuccess() {

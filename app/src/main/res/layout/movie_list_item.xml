@@ -5,10 +5,11 @@
     android:layout_gravity="center_vertical">
 
     <ImageView
+        android:padding="5dp"
         android:layout_gravity="center|center_vertical"
         android:id="@+id/iv_movie_poster"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="280dp"
         android:scaleType="fitCenter"/>
 
 </LinearLayout>
