@@ -1,8 +1,10 @@
 package com.example.popularmovies;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,23 +22,46 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView mPopularMoviesTextView;
+    private List<Movie> mPopularMovies;
+
+    private RecyclerView mPopularMoviesRecyclerView;
+    private MoviesAdapter mMoviesAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mPopularMoviesTextView = findViewById(R.id.tv_movies_data);
+        mPopularMoviesRecyclerView = findViewById(R.id.rv_popular_movies);
+
         getPopularMovies();
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,2);
+        mPopularMoviesRecyclerView.setLayoutManager(gridLayoutManager);
+
+        mPopularMoviesRecyclerView.setHasFixedSize(true);
+
+        if( mPopularMovies != null ) {
+            Log.d("INITIAL ADAPTER LIST", "" + mPopularMovies.size()+"YES");
+        }
+        else {
+            Log.d("INITIAL ADAPTER LIST", "" + 0+"NO");
+        }
+        mMoviesAdapter =  new MoviesAdapter();
+        mPopularMoviesRecyclerView.setAdapter(mMoviesAdapter);
     }
 
     private void getPopularMovies() {
         URL url = NetworkUtils.buildUrl();
-        new PopularMoviesAsyncTask().execute(url);
+        new PopularMoviesAsyncTask(this).execute(url);
     }
 
     public class PopularMoviesAsyncTask extends AsyncTask<URL,Void, String> {
+        private Context mContext;
+
+        public PopularMoviesAsyncTask(Context context) {
+            mContext = context;
+        }
 
         @Override
         protected String doInBackground(URL... urls) {
@@ -55,14 +80,13 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             if ( s != null && !s.equals("")) {
                 try {
-                    List<Movie> movies = JSONUtils.getMovieListFromJSON(s);
-                    for (int i=0;i<movies.size(); i++) {
-                        Movie movie = movies.get(i);
-                        mPopularMoviesTextView.append(movie.toString()+"\n\n\n");
-                    }
+                    mPopularMovies = JSONUtils.getMovieListFromJSON(s);
+                    mMoviesAdapter.setMovieList(mPopularMovies);
+                    mMoviesAdapter.notifyDataSetChanged();
+                    Log.d("UPDATED LIST",""+mPopularMovies.size());
                 } catch (JSONException e) {
+                    mPopularMovies = null;
                     e.printStackTrace();
-                    mPopularMoviesTextView.setText("Oooops! Something went wrong");
                 }
             }
         }

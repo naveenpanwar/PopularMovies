@@ -13,6 +13,13 @@ public class NetworkUtils {
     final static String TMDB_BASE_URL = "https://api.themoviedb.org/3/movie/popular";
     final static String PARAM_API_KEY = "api_key";
 
+    final static String TMDB_IMAGE_BASE_URL = " https://image.tmdb.org/t/p/w185";
+
+    public static Uri getImageURL(String image) {
+        Uri uri = Uri.parse(TMDB_IMAGE_BASE_URL+image);
+        return uri;
+    }
+
 
     /* Please replace SecretCodes.getApiKey() with appropriate key */
     public static URL buildUrl() {

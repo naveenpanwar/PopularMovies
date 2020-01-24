@@ -20,4 +20,8 @@ public class Movie {
     public String toString() {
         return originalTitle+" - "+rating+" - "+releaseDate;
     }
+
+    public String getImage() {
+        return poster;
+    }
 }
