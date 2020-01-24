@@ -12,7 +12,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical" >
 
             <TextView
@@ -23,6 +23,7 @@
                 android:id="@+id/tv_movie_title" />
 
             <ImageView
+                android:contentDescription="Movie Poster"
                 android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="500dp"
