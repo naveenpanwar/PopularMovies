@@ -7,7 +7,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class JSONUtils {
@@ -23,7 +22,6 @@ public class JSONUtils {
             for( int i=0; i<results.length(); i++) {
 
                 JSONObject movie = results.getJSONObject(i);
-                Movie m = null;
                 int id = movie.getInt("id");
                 String oT = movie.getString("original_title");
                 String po = movie.getString("poster_path");
@@ -31,7 +29,7 @@ public class JSONUtils {
                 double rt = movie.getDouble("vote_average");
                 String rD = movie.getString("release_date");
 
-                m = new Movie(id, oT,po,pl,rt,rD);
+                Movie m = new Movie(id, oT,po,pl,rt,rD);
 
                 movieList.add(m);
             }

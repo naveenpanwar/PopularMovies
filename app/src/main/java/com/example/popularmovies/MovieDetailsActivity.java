@@ -11,11 +11,11 @@ import com.example.popularmovies.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 public class MovieDetailsActivity extends AppCompatActivity {
-    ImageView mMoviePoster;
-    TextView mTitleTextView;
-    TextView mPlotTextView;
-    TextView mRatingTextView;
-    TextView mDateTextView;
+    private ImageView mMoviePoster;
+    private TextView mTitleTextView;
+    private TextView mPlotTextView;
+    private TextView mRatingTextView;
+    private TextView mDateTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,25 +30,18 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         Intent parentIntent = getIntent();
 
-        String poster = "";
-        String title = "";
-        String plot = "";
-        String rating = "";
-        String release_date = "";
-
-
         if( parentIntent.hasExtra("id")) {
-            poster = parentIntent.getStringExtra("poster");
-            title = parentIntent.getStringExtra("title");
-            plot = parentIntent.getStringExtra("plot");
-            rating = parentIntent.getStringExtra("rating");
-            release_date = parentIntent.getStringExtra("release_date");
+            String poster = parentIntent.getStringExtra("poster");
+            String title = parentIntent.getStringExtra("title");
+            String plot = parentIntent.getStringExtra("plot");
+            String rating = parentIntent.getStringExtra("rating");
+            String release_date = parentIntent.getStringExtra("release_date");
 
             setTitle("Movie Details");
             mTitleTextView.setText(title);
             mPlotTextView.setText(plot);
-            mRatingTextView.setText("Rating: "+rating);
-            mDateTextView.setText("Release Date: "+release_date);
+            mRatingTextView.setText(String.format(getString(R.string.movie_rating),rating));
+            mDateTextView.setText(String.format(getString(R.string.movie_release_date),release_date));
 
             Picasso.get().load(NetworkUtils.getImageURL(poster)).fit().centerCrop().into(mMoviePoster);
         }

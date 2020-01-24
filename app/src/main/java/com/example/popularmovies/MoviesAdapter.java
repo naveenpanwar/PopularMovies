@@ -21,13 +21,13 @@ import java.util.List;
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder>  {
     private List<Movie> mMovieList;
 
-    private MovieItemClickListener mMovieItemClickListener;
+    final private MovieItemClickListener mMovieItemClickListener;
 
-    public MoviesAdapter(MovieItemClickListener onClickListener) {
+    MoviesAdapter(MovieItemClickListener onClickListener) {
         mMovieItemClickListener = onClickListener;
     }
 
-    public void setMovieList(List<Movie> movies) {
+    void setMovieList(List<Movie> movies) {
         mMovieList = movies;
     }
 
@@ -62,15 +62,15 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
 
     public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private ImageView movieImageView;
+        final private ImageView movieImageView;
 
-        public MoviesAdapterViewHolder(@NonNull View itemView) {
+        MoviesAdapterViewHolder(@NonNull View itemView) {
             super(itemView);
             movieImageView = itemView.findViewById(R.id.iv_movie_poster);
             itemView.setOnClickListener(this);
         }
 
-        public void loadImage(Uri uri) {
+        void loadImage(Uri uri) {
             Picasso.get().load(uri)
                     .placeholder(R.drawable.ic_launcher_background)
                     .error(R.drawable.ic_launcher_foreground)

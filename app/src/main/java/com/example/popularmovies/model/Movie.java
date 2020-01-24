@@ -1,14 +1,12 @@
 package com.example.popularmovies.model;
 
-import java.util.Date;
-
 public class Movie {
-    int id;
-    String originalTitle;
-    String poster;
-    String plot;
-    double rating;
-    String releaseDate;
+    final private int id;
+    final private String originalTitle;
+    final private String poster;
+    final private String plot;
+    final private double rating;
+    final private String releaseDate;
 
     public Movie(int iD,String oT, String po, String pl, double rt, String rD) {
         id = iD;

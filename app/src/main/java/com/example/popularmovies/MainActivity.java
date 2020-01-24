@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.example.popularmovies.model.Movie;
 import com.example.popularmovies.utilities.JSONUtils;
@@ -102,10 +101,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     }
 
 
-    public class PopularMoviesAsyncTask extends AsyncTask<URL,Void, String> {
-        private Context mContext;
+    class PopularMoviesAsyncTask extends AsyncTask<URL,Void, String> {
+        final private Context mContext;
 
-        public PopularMoviesAsyncTask(Context context) {
+        PopularMoviesAsyncTask(Context context) {
             mContext = context;
         }
 

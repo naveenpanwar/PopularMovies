@@ -10,18 +10,17 @@ import java.net.URL;
 import java.util.Scanner;
 
 public class NetworkUtils {
-    final static String TMDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
-    final static String PARAM_API_KEY = "api_key";
+    final private static String TMDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
+    final private static String PARAM_API_KEY = "api_key";
 
-    final static String TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
+    final private static String TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
 
     public static Uri getImageURL(String image) {
-        Uri uri = Uri.parse(TMDB_IMAGE_BASE_URL+image);
-        return uri;
+        return Uri.parse(TMDB_IMAGE_BASE_URL+image);
     }
 
 
-    public static URL getURL(Uri.Builder builder) {
+    private static URL getURL(Uri.Builder builder) {
         Uri uri =  builder.appendQueryParameter(PARAM_API_KEY, SecretCodes.getApiKey()).build();
         URL url = null;
         try {
