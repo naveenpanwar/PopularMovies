@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,7 +24,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieItemClickListener {
 
     private List<Movie> mPopularMovies;
 
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         else {
             Log.d("INITIAL ADAPTER LIST", "" + 0+"NO");
         }
-        mMoviesAdapter =  new MoviesAdapter();
+        mMoviesAdapter =  new MoviesAdapter(this);
         mPopularMoviesRecyclerView.setAdapter(mMoviesAdapter);
     }
 
@@ -83,6 +84,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    @Override
+    public void onMovieItemClick(int clickedMovieIndex) {
+        Intent intent = new Intent(this, MovieDetailsActivity.class);
+        Movie movie = mPopularMovies.get(clickedMovieIndex);
+
+        intent.putExtra("id", String.valueOf(movie.getId()));
+        intent.putExtra("poster", movie.getImage());
+        intent.putExtra("title", movie.getTitle());
+        intent.putExtra("plot", movie.getPlot());
+        intent.putExtra("rating", String.valueOf(movie.getRating()));
+        intent.putExtra("release_date", movie.getReleaseDate());
+
+        startActivity(intent);
     }
 
 

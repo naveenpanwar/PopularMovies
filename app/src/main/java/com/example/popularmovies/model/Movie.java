@@ -3,13 +3,15 @@ package com.example.popularmovies.model;
 import java.util.Date;
 
 public class Movie {
+    int id;
     String originalTitle;
     String poster;
     String plot;
-    int rating;
+    double rating;
     String releaseDate;
 
-    public Movie(String oT, String po, String pl, int rt, String rD) {
+    public Movie(int iD,String oT, String po, String pl, double rt, String rD) {
+        id = iD;
         originalTitle = oT;
         poster = po;
         plot = pl;
@@ -23,5 +25,25 @@ public class Movie {
 
     public String getImage() {
         return poster;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return originalTitle;
+    }
+
+    public String getPlot() {
+        return plot;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public String getReleaseDate() {
+        return releaseDate;
     }
 }

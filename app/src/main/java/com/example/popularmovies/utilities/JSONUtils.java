@@ -24,14 +24,14 @@ public class JSONUtils {
 
                 JSONObject movie = results.getJSONObject(i);
                 Movie m = null;
-
+                int id = movie.getInt("id");
                 String oT = movie.getString("original_title");
                 String po = movie.getString("poster_path");
                 String pl = movie.getString("overview");
-                int rt = movie.getInt("vote_average");
+                double rt = movie.getDouble("vote_average");
                 String rD = movie.getString("release_date");
 
-                m = new Movie(oT,po,pl,rt,rD);
+                m = new Movie(id, oT,po,pl,rt,rD);
 
                 movieList.add(m);
             }
