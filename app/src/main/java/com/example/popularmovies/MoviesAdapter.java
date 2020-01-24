@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.popularmovies.model.Movie;
 import com.example.popularmovies.utilities.NetworkUtils;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -62,8 +63,19 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
             Picasso.get().load(uri)
                     .placeholder(R.drawable.ic_launcher_background)
                     .error(R.drawable.ic_launcher_foreground)
-                    .fit().centerCrop()
-                    .into(movieImageView);
+                    .fit().centerInside()
+                    .into(movieImageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d("PICASSO DEBUG", "Everything is ok");
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            Log.d("PICASSO DEBUG", "Error on loading image.");
+                            e.printStackTrace();
+                        }
+                    });
         }
     }
 }
