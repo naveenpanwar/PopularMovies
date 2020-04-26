@@ -18,7 +18,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder>  {
+public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapterViewHolder>  {
     private List<Movie> mMovieList;
 
     final private MovieItemClickListener mMovieItemClickListener;
@@ -41,7 +41,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         Context context = parent.getContext();
         boolean attachToParentImmediately = false;
         View view = LayoutInflater.from(context).inflate(R.layout.movie_list_item,parent, attachToParentImmediately);
-        return new MoviesAdapterViewHolder(view);
+        return new MoviesAdapterViewHolder(view, mMovieItemClickListener);
     }
 
     @Override
@@ -60,39 +60,4 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         return 0;
     }
 
-    public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        final private ImageView movieImageView;
-
-        MoviesAdapterViewHolder(@NonNull View itemView) {
-            super(itemView);
-            movieImageView = itemView.findViewById(R.id.iv_movie_poster);
-            itemView.setOnClickListener(this);
-        }
-
-        void loadImage(Uri uri) {
-            Picasso.get().load(uri)
-                    .placeholder(R.drawable.ic_launcher_background)
-                    .error(R.drawable.ic_launcher_foreground)
-                    .fit().centerCrop()
-                    .into(movieImageView, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            Log.d("PICASSO DEBUG", "Everything is ok");
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            Log.d("PICASSO DEBUG", "Error on loading image.");
-                            e.printStackTrace();
-                        }
-                    });
-        }
-
-        @Override
-        public void onClick(View v) {
-            int clickedPosition = getAdapterPosition();
-            mMovieItemClickListener.onMovieItemClick(clickedPosition);
-        }
-    }
 }

@@ -1,6 +1,7 @@
 package com.example.popularmovies.utilities;
 
 import com.example.popularmovies.model.Movie;
+import com.example.popularmovies.model.Review;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,5 +37,30 @@ public class JSONUtils {
         }
 
         return movieList;
+    }
+
+    public static List<Review> getReviewListFromJSON(String json) throws JSONException {
+
+        List<Review> reviewList = new ArrayList<>();
+
+        JSONObject responseJSON = new JSONObject(json);
+
+        if ( responseJSON.has("results") ) {
+            JSONArray results = responseJSON.getJSONArray("results");
+            for( int i=0; i<results.length(); i++) {
+
+                JSONObject review = results.getJSONObject(i);
+                String id = review.getString("id");
+                String aU = review.getString("author");
+                String cO = review.getString("content");
+                String uRL = review.getString("url");
+
+                Review r = new Review(id, aU, cO, uRL);
+
+                reviewList.add(r);
+            }
+        }
+
+        return reviewList;
     }
 }

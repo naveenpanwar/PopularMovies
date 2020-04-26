@@ -60,6 +60,19 @@
             android:layout_height="wrap_content"
             android:id="@+id/tv_movie_plot" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:orientation="vertical">
+
+           <androidx.recyclerview.widget.RecyclerView
+               android:id="@+id/rv_reviews_list"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               tools:listitem="@layout/review_list_item"/>
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </ScrollView>

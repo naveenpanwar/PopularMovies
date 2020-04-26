@@ -38,6 +38,12 @@ public class NetworkUtils {
         return getURL(uriBuilder);
     }
 
+    /* Please replace SecretCodes.getApiKey() with appropriate key */
+    public static URL buildReviewsUrl(String id) {
+        Uri.Builder uriBuilder = Uri.parse(TMDB_BASE_URL+id+"/reviews").buildUpon();
+        return getURL(uriBuilder);
+    }
+
     public static URL buildTopRatedMoviesUrl() {
         Uri.Builder uriBuilder = Uri.parse(TMDB_BASE_URL+"top_rated").buildUpon();
         return getURL(uriBuilder);
