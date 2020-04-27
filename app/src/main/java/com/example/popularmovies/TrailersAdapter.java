@@ -35,9 +35,11 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapterViewHol
     @Override
     public void onBindViewHolder(@NonNull TrailersAdapterViewHolder holder, int position) {
         Log.d("POSITION", position+"");
-        Uri imageUri = NetworkUtils.getYouTubeImageURL(mTrailersList.get(position).getKey());
+        Trailer trailer = mTrailersList.get(position);
+        Uri imageUri = NetworkUtils.getYouTubeImageURL(trailer.getKey());
         Log.d("IMAGE URI", imageUri.toString());
         holder.loadImage(imageUri);
+        holder.setTrailerTitleTextView(trailer.getName());
     }
 
     @Override

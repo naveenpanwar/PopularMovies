@@ -75,7 +75,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
         // Preparing Trailers RecyclerView
         mTrailersRecyclerView = findViewById(R.id.rv_trailers);
 
-        LinearLayoutManager trailersLayoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager trailersLayoutManager = new LinearLayoutManager(
+                this,
+                LinearLayoutManager.HORIZONTAL,
+                true
+        );
         mTrailersRecyclerView.setLayoutManager(trailersLayoutManager);
 
         mTrailersRecyclerView.setHasFixedSize(true);

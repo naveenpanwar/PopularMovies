@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-public class TrailersAdapterViewHolder extends RecyclerView.ViewHolder {
+public class TrailersAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     final private TextView trailerTitleTextView;
     final private ImageView trailerImageView;
@@ -22,6 +22,10 @@ public class TrailersAdapterViewHolder extends RecyclerView.ViewHolder {
 
         trailerTitleTextView = itemView.findViewById(R.id.tv_trailer_title);
         trailerImageView = itemView.findViewById(R.id.iv_trailer_thumbnail);
+    }
+
+    void setTrailerTitleTextView(String title) {
+        trailerTitleTextView.setText(title);
     }
 
     void loadImage(Uri uri) {
@@ -41,5 +45,9 @@ public class TrailersAdapterViewHolder extends RecyclerView.ViewHolder {
                         e.printStackTrace();
                     }
                 });
+    }
+
+    @Override
+    public void onClick(View v) {
     }
 }
