@@ -15,8 +15,14 @@ public class NetworkUtils {
 
     final private static String TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
 
+    final private static String YT_IMAGE_BASE_URL = "https://img.youtube.com/vi/";
+
     public static Uri getImageURL(String image) {
         return Uri.parse(TMDB_IMAGE_BASE_URL+image);
+    }
+
+    public static Uri getYouTubeImageURL(String key) {
+        return Uri.parse(YT_IMAGE_BASE_URL+key+"/0.jpg");
     }
 
 
@@ -41,6 +47,12 @@ public class NetworkUtils {
     /* Please replace SecretCodes.getApiKey() with appropriate key */
     public static URL buildReviewsUrl(String id) {
         Uri.Builder uriBuilder = Uri.parse(TMDB_BASE_URL+id+"/reviews").buildUpon();
+        return getURL(uriBuilder);
+    }
+
+    /* Please replace SecretCodes.getApiKey() with appropriate key */
+    public static URL buildTrailersUrl(String id) {
+        Uri.Builder uriBuilder = Uri.parse(TMDB_BASE_URL+id+"/videos").buildUpon();
         return getURL(uriBuilder);
     }
 
