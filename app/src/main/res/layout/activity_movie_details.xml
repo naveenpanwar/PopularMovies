@@ -6,83 +6,104 @@
     tools:context=".MovieDetailsActivity" >
 
     <LinearLayout
+        android:padding="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
         <TextView
-            android:padding="5dp"
             android:textSize="40sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_movie_title" />
+            android:id="@+id/tv_movie_title"
+            tools:text="Ad Astra"/>
 
         <ImageView
             android:contentDescription="@string/movie_imageview_description"
-            android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="500dp"
-            android:id="@+id/iv_detail_movie_poster" />
+            android:id="@+id/iv_detail_movie_poster"
+            tools:src="@drawable/ic_launcher_foreground"/>
 
         <LinearLayout
-            android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:weightSum="2">
+
             <TextView
                 android:layout_weight="1"
                 android:textSize="20sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start"
-                android:id="@+id/tv_movie_release_date" />
+                android:id="@+id/tv_movie_release_date"
+                tools:text="Release Date: 2019-09-17"/>
+
             <TextView
                 android:layout_weight="1"
                 android:textSize="20sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="end"
-                android:id="@+id/tv_movie_rating" />
+                android:id="@+id/tv_movie_rating"
+                tools:text="Rating: 6.0"/>
+
         </LinearLayout>
 
         <TextView
-            android:padding="5dp"
-            android:textSize="30sp"
+            android:textSize="32sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"
             android:text="@string/label_for_plot_textview" />
 
         <TextView
-            android:padding="5dp"
             android:textSize="25sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_movie_plot" />
+            android:id="@+id/tv_movie_plot"
+            tools:text="The near future, a time when both hope and hardships drive humanity to look to the stars and beyond. While a mysterious phenomenon menaces to destroy life on planet Earth, astronaut Roy McBride undertakes a mission across the immensity of space and its many perils to uncover the truth about a lost expedition that decades before boldly faced emptiness and silence in search of the unknown."/>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="500dp"
+            android:layout_height="350dp"
+            android:paddingTop="16dp"
             android:orientation="vertical">
 
-           <androidx.recyclerview.widget.RecyclerView
-               android:id="@+id/rv_reviews_list"
-               android:layout_width="match_parent"
-               android:layout_height="match_parent"
-               tools:listitem="@layout/review_list_item"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="32sp"
+                android:textColor="@color/colorPrimaryDark"
+                android:text="@string/label_for_trailers_textview" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_trailers"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:listitem="@layout/trailer_list_item"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:paddingTop="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="32sp"
+                android:textColor="@color/colorPrimaryDark"
+                android:text="@string/label_for_reviews_textview" />
+
+           <androidx.recyclerview.widget.RecyclerView
+               android:id="@+id/rv_reviews_list"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               tools:listitem="@layout/review_list_item"/>
 
         </LinearLayout>
 
