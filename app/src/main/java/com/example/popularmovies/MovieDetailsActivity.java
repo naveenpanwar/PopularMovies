@@ -1,12 +1,12 @@
 package com.example.popularmovies;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-public class MovieDetailsActivity extends AppCompatActivity {
+public class MovieDetailsActivity extends AppCompatActivity implements TrailersAdapter.TrailerItemClickListener {
     private ImageView mMoviePoster;
     private TextView mTitleTextView;
     private TextView mPlotTextView;
@@ -91,7 +91,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
             Log.d("INITIAL TRAILER LIST", "" + 0+"NO");
         }
 
-        mTrailersAdapter = new TrailersAdapter();
+        mTrailersAdapter = new TrailersAdapter(this);
         mTrailersRecyclerView.setAdapter(mTrailersAdapter);
 
         Intent parentIntent = getIntent();
@@ -125,6 +125,17 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private void getTrailers(String id) {
         URL url = NetworkUtils.buildTrailersUrl(id);
         new TrailersAsyncTask(this).execute(url);
+    }
+
+    @Override
+    public void onTrailerItemClick(int clickedTrailerIndex) {
+        Trailer trailer = mTrailersList.get(clickedTrailerIndex);
+        Log.d("Trailer Name", trailer.getName());
+        Intent intent = new Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse( NetworkUtils.getYouTubeURL(trailer.getKey()) )
+        );
+        startActivity(intent);
     }
 
     class ReviewsAsyncTask extends AsyncTask<URL,Void, String> {

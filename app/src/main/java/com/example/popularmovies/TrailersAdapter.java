@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.popularmovies.model.Movie;
 import com.example.popularmovies.model.Trailer;
 import com.example.popularmovies.utilities.NetworkUtils;
 
@@ -18,6 +17,16 @@ import java.util.List;
 
 public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapterViewHolder>{
     private List<Trailer> mTrailersList;
+
+    final private TrailerItemClickListener mTrailerItemClickListener;
+
+    TrailersAdapter(TrailerItemClickListener trailerItemClickListener) {
+        mTrailerItemClickListener = trailerItemClickListener;
+    }
+
+    public interface TrailerItemClickListener {
+        void onTrailerItemClick(int clickedTrailerIndex);
+    }
 
     void setTrailerList(List<Trailer> trailers) {
         mTrailersList = trailers;
@@ -29,7 +38,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapterViewHol
         Context context = parent.getContext();
         boolean attachToParentImmediately = false;
         View view = LayoutInflater.from(context).inflate(R.layout.trailer_list_item, parent, attachToParentImmediately);
-        return new TrailersAdapterViewHolder(view);
+        return new TrailersAdapterViewHolder(view, mTrailerItemClickListener);
     }
 
     @Override

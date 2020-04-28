@@ -17,6 +17,8 @@ public class NetworkUtils {
 
     final private static String YT_IMAGE_BASE_URL = "https://img.youtube.com/vi/";
 
+    final private static String YT_VIDEO_BASE_URL = "https://www.youtube.com/watch?v=";
+
     public static Uri getImageURL(String image) {
         return Uri.parse(TMDB_IMAGE_BASE_URL+image);
     }
@@ -79,6 +81,11 @@ public class NetworkUtils {
         } finally {
             urlConnection.disconnect();
         }
+    }
+
+    public static String getYouTubeURL(String key) {
+        String YtUrl = YT_VIDEO_BASE_URL+key;
+        return YtUrl;
     }
 }
 

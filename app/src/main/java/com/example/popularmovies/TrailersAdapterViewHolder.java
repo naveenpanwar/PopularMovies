@@ -16,12 +16,15 @@ public class TrailersAdapterViewHolder extends RecyclerView.ViewHolder implement
 
     final private TextView trailerTitleTextView;
     final private ImageView trailerImageView;
+    final private TrailersAdapter.TrailerItemClickListener mTrailerItemClickListener;
 
-    public TrailersAdapterViewHolder(@NonNull View itemView) {
+    public TrailersAdapterViewHolder(@NonNull View itemView, TrailersAdapter.TrailerItemClickListener trailerItemClickListener) {
         super(itemView);
 
         trailerTitleTextView = itemView.findViewById(R.id.tv_trailer_title);
         trailerImageView = itemView.findViewById(R.id.iv_trailer_thumbnail);
+        mTrailerItemClickListener = trailerItemClickListener;
+        itemView.setOnClickListener(this);
     }
 
     void setTrailerTitleTextView(String title) {
@@ -49,5 +52,7 @@ public class TrailersAdapterViewHolder extends RecyclerView.ViewHolder implement
 
     @Override
     public void onClick(View v) {
+        int clickedPosition = getAdapterPosition();
+        mTrailerItemClickListener.onTrailerItemClick(clickedPosition);
     }
 }
