@@ -47,7 +47,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapterViewHolder>
     @Override
     public void onBindViewHolder(@NonNull MoviesAdapterViewHolder holder, int position) {
         Log.d("POSITION", position+"");
-        Uri imageUri = NetworkUtils.getImageURL(mMovieList.get(position).getImage());
+        Uri imageUri = NetworkUtils.getImageURL(mMovieList.get(position).getPoster());
         Log.d("IMAGE URI", imageUri.toString());
         holder.loadImage(imageUri);
     }

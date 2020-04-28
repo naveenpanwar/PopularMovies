@@ -21,6 +21,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieItemClickListener {
@@ -91,8 +92,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         Movie movie = mPopularMovies.get(clickedMovieIndex);
 
         intent.putExtra("id", String.valueOf(movie.getId()));
-        intent.putExtra("poster", movie.getImage());
-        intent.putExtra("title", movie.getTitle());
+        intent.putExtra("poster", movie.getPoster());
+        intent.putExtra("title", movie.getOriginalTitle());
         intent.putExtra("plot", movie.getPlot());
         intent.putExtra("rating", String.valueOf(movie.getRating()));
         intent.putExtra("release_date", movie.getReleaseDate());
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                     mMoviesAdapter.setMovieList(mPopularMovies);
                     mMoviesAdapter.notifyDataSetChanged();
                     Log.d("UPDATED LIST",""+mPopularMovies.size());
-                } catch (JSONException e) {
+                } catch (JSONException | ParseException e) {
                     mPopularMovies = null;
                     e.printStackTrace();
                 }

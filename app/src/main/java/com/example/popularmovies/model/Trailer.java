@@ -1,31 +1,69 @@
 package com.example.popularmovies.model;
 
-public class Trailer {
-    final private String id;
-    final private String key;
-    final private String name;
-    final private String site;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
-    public Trailer(String iD,String kY, String nM, String sT) {
-        id = iD;
-        key = kY;
-        name = nM;
-        site = sT;
+@Entity(tableName = "trailer")
+public class Trailer {
+
+    @PrimaryKey
+    @NonNull
+    private String id;
+
+    @ColumnInfo(name = "movie_id")
+    private int movieId;
+
+    private String key;
+    private String name;
+    private String site;
+
+    public Trailer(String id, int movieId, String key, String name, String site) {
+        this.id = id;
+        this.movieId = movieId;
+        this.key = key;
+        this.name = name;
+        this.site = site;
     }
 
     public String getId() {
-        return id;
+        return this.id;
+    }
+
+    public int getMovieId() {
+        return this.movieId;
     }
 
     public String getKey() {
-        return key;
+        return this.key;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public String getSite() {
-        return site;
+        return this.site;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setMovieId(int movieId) {
+        this.movieId = movieId;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSite(String site) {
+        this.site = site;
     }
 }

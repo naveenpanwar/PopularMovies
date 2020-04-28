@@ -1,31 +1,69 @@
 package com.example.popularmovies.model;
 
-public class Review {
-    final private String id;
-    final private String author;
-    final private String content;
-    final private String url;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
-    public Review(String iD,String aU, String cO, String uRL) {
-        id = iD;
-        author = aU;
-        content = cO;
-        url = uRL;
+@Entity(tableName = "review")
+public class Review {
+
+    @PrimaryKey
+    @NonNull
+    private String id;
+
+    @ColumnInfo(name = "movie_id")
+    private int movieId;
+
+    private String author;
+    private String content;
+    private String url;
+
+    public Review(String id, int movieId, String author, String content, String url) {
+        this.id = id;
+        this.movieId = movieId;
+        this.author = author;
+        this.content = content;
+        this.url = url;
     }
 
     public String getId() {
-        return id;
+        return this.id;
+    }
+
+    public int getMovieId() {
+        return this.movieId;
     }
 
     public String getAuthor() {
-        return author;
+        return this.author;
     }
 
     public String getContent() {
-        return content;
+        return this.content;
     }
 
-    public String getURL() {
-        return url;
+    public String getUrl() {
+        return this.url;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setMovieId(int movieId) {
+        this.movieId = movieId;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

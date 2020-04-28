@@ -8,12 +8,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class JSONUtils {
 
-    public static List<Movie> getMovieListFromJSON(String json) throws JSONException {
+    public static List<Movie> getMovieListFromJSON(String json) throws JSONException, ParseException {
 
         List<Movie> movieList = new ArrayList<>();
 
@@ -29,9 +32,10 @@ public class JSONUtils {
                 String po = movie.getString("poster_path");
                 String pl = movie.getString("overview");
                 double rt = movie.getDouble("vote_average");
-                String rD = movie.getString("release_date");
+                double pR = movie.getDouble("popularity");
+                Date rD = getDateFromString(movie.getString("release_date"));
 
-                Movie m = new Movie(id, oT,po,pl,rt,rD);
+                Movie m = new Movie(id, oT,po,pl,rt,pR,rD);
 
                 movieList.add(m);
             }
@@ -48,6 +52,7 @@ public class JSONUtils {
 
         if ( responseJSON.has("results") ) {
             JSONArray results = responseJSON.getJSONArray("results");
+            int mI = responseJSON.getInt("id");
             for( int i=0; i<results.length(); i++) {
 
                 JSONObject review = results.getJSONObject(i);
@@ -56,7 +61,7 @@ public class JSONUtils {
                 String cO = review.getString("content");
                 String uRL = review.getString("url");
 
-                Review r = new Review(id, aU, cO, uRL);
+                Review r = new Review(id, mI, aU, cO, uRL);
 
                 reviewList.add(r);
             }
@@ -73,6 +78,7 @@ public class JSONUtils {
 
         if ( responseJSON.has("results") ) {
             JSONArray results = responseJSON.getJSONArray("results");
+            int mI = responseJSON.getInt("id");
             for( int i=0; i<results.length(); i++) {
 
                 JSONObject trailer = results.getJSONObject(i);
@@ -82,12 +88,16 @@ public class JSONUtils {
                 String sT = trailer.getString("site");
 
                 if ( sT.toLowerCase().equals("youtube") ) {
-                    Trailer t = new Trailer(id, kY, nM, sT);
+                    Trailer t = new Trailer(id, mI, kY, nM, sT);
                     trailersList.add(t);
                 }
             }
         }
 
         return trailersList;
+    }
+
+    public static Date getDateFromString(String dateString) throws ParseException {
+        return new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
     }
 }
