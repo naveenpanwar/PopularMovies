@@ -21,6 +21,7 @@ public class Movie {
     private String plot;
     private double rating;
     private double popularity;
+    private boolean favorite;
 
     @ColumnInfo(name = "release_date")
     private Date releaseDate;
@@ -33,6 +34,7 @@ public class Movie {
         this.rating = rating;
         this.popularity = popularity;
         this.releaseDate = releaseDate;
+        this.favorite = false;
     }
 
     public String toString() {
@@ -67,6 +69,10 @@ public class Movie {
         return this.releaseDate;
     }
 
+    public boolean getFavorite() {
+        return this.favorite;
+    }
+
     public void setPoster(String poster) {
         this.poster = poster;
     }
@@ -93,5 +99,9 @@ public class Movie {
 
     public void setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 }

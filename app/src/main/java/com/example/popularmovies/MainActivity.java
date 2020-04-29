@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.example.popularmovies.database.MovieDatabase;
 import com.example.popularmovies.model.Movie;
 import com.example.popularmovies.utilities.JSONUtils;
 import com.example.popularmovies.utilities.NetworkUtils;
@@ -24,6 +25,8 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.List;
 
+import static com.example.popularmovies.database.DateConverter.getStringFromDate;
+
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieItemClickListener {
 
     private List<Movie> mPopularMovies;
@@ -31,27 +34,29 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private RecyclerView mPopularMoviesRecyclerView;
     private MoviesAdapter mMoviesAdapter;
 
+    private MovieDatabase mMovieDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mPopularMoviesRecyclerView = findViewById(R.id.rv_popular_movies);
+        mMovieDatabase = MovieDatabase.getInstance(getApplicationContext());
 
         getPopularMovies();
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,2);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         mPopularMoviesRecyclerView.setLayoutManager(gridLayoutManager);
 
         mPopularMoviesRecyclerView.setHasFixedSize(true);
 
-        if( mPopularMovies != null ) {
-            Log.d("INITIAL ADAPTER LIST", "" + mPopularMovies.size()+"YES");
+        if (mPopularMovies != null) {
+            Log.d("INITIAL ADAPTER LIST", "" + mPopularMovies.size() + "YES");
+        } else {
+            Log.d("INITIAL ADAPTER LIST", "" + 0 + "NO");
         }
-        else {
-            Log.d("INITIAL ADAPTER LIST", "" + 0+"NO");
-        }
-        mMoviesAdapter =  new MoviesAdapter(this);
+        mMoviesAdapter = new MoviesAdapter(this);
         mPopularMoviesRecyclerView.setAdapter(mMoviesAdapter);
     }
 
@@ -76,10 +81,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if( id == R.id.action_sort_by_popularity) {
+        if (id == R.id.action_sort_by_popularity) {
             getPopularMovies();
-        }
-        else {
+        } else {
             getTopRatedMovies();
         }
 
@@ -96,21 +100,24 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         intent.putExtra("title", movie.getOriginalTitle());
         intent.putExtra("plot", movie.getPlot());
         intent.putExtra("rating", String.valueOf(movie.getRating()));
-        intent.putExtra("release_date", movie.getReleaseDate());
+        intent.putExtra("release_date", getStringFromDate(movie.getReleaseDate()));
+        intent.putExtra("favorite", String.valueOf(movie.getFavorite()));
 
         startActivity(intent);
     }
 
 
-    class PopularMoviesAsyncTask extends AsyncTask<URL,Void, String> {
+    class PopularMoviesAsyncTask extends AsyncTask<URL, Void, List<Movie>> {
         final private Context mContext;
 
         PopularMoviesAsyncTask(Context context) {
             mContext = context;
         }
 
+        List<Movie> movies;
+
         @Override
-        protected String doInBackground(URL... urls) {
+        protected List<Movie> doInBackground(URL... urls) {
             URL url = urls[0];
             String popularMoviesResults = null;
             try {
@@ -119,21 +126,34 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 e.printStackTrace();
             }
 
-            return popularMoviesResults;
+            try {
+                List<Movie> movies = JSONUtils.getMovieListFromJSON(popularMoviesResults);
+                for ( int i=0; i < movies.size(); i++) {
+                    Movie networkMovie = movies.get(i);
+                    Movie dbMovie = mMovieDatabase.movieDao().getMovieById(networkMovie.getId());
+                    if(  dbMovie != null) {
+                        networkMovie.setFavorite(dbMovie.getFavorite());
+                        mMovieDatabase.movieDao().updateMovie(networkMovie);
+                    } else {
+                        mMovieDatabase.movieDao().insertMovie(networkMovie);
+                    }
+                }
+                return movies;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            if ( s != null && !s.equals("")) {
-                try {
-                    mPopularMovies = JSONUtils.getMovieListFromJSON(s);
-                    mMoviesAdapter.setMovieList(mPopularMovies);
-                    mMoviesAdapter.notifyDataSetChanged();
-                    Log.d("UPDATED LIST",""+mPopularMovies.size());
-                } catch (JSONException | ParseException e) {
-                    mPopularMovies = null;
-                    e.printStackTrace();
-                }
+        protected void onPostExecute(List<Movie> movies) {
+            if (movies != null) {
+                mPopularMovies = movies;
+                mMoviesAdapter.setMovieList(movies);
+                mMoviesAdapter.notifyDataSetChanged();
+                Log.d("UPDATED LIST", "" + mPopularMovies.size());
             }
         }
     }

@@ -20,6 +20,9 @@ public interface MovieDao {
     @Query("SELECT * FROM movie ORDER BY rating")
     List<Movie> loadMoviesByTopRating();
 
+    @Query("SELECT * FROM movie WHERE id = :movieID")
+    Movie getMovieById(int movieID);
+
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void updateMovie(Movie movie);
 

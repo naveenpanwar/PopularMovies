@@ -10,9 +10,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.popularmovies.database.MovieDatabase;
 import com.example.popularmovies.model.Review;
 import com.example.popularmovies.model.Trailer;
 import com.example.popularmovies.utilities.JSONUtils;
@@ -26,6 +29,8 @@ import java.net.URL;
 import java.util.List;
 
 public class MovieDetailsActivity extends AppCompatActivity implements TrailersAdapter.TrailerItemClickListener {
+    private final static String FAVORITE_IT = "favorite it";
+    private final static String UNFAVORITE_IT = "unfavorite it";
     private ImageView mMoviePoster;
     private TextView mTitleTextView;
     private TextView mPlotTextView;
@@ -44,6 +49,12 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
     private RecyclerView mTrailersRecyclerView;
     private TrailersAdapter mTrailersAdapter;
 
+    private Button mFavoriteButton;
+    private ImageView mFavoriteImageView;
+
+    private MovieDatabase mMovieDatabase;
+    private boolean mFavorite;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +65,25 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
         mPlotTextView = findViewById(R.id.tv_movie_plot);
         mRatingTextView = findViewById(R.id.tv_movie_rating);
         mDateTextView = findViewById(R.id.tv_movie_release_date);
+        mFavoriteButton = findViewById(R.id.bt_favorite);
+        mFavoriteImageView = findViewById(R.id.iv_favorite);
+
+        mMovieDatabase = MovieDatabase.getInstance(getApplicationContext());
+
+        mFavoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if( mFavorite ) {
+                    mFavorite = false;
+                    mFavoriteButton.setText(UNFAVORITE_IT);
+                    mFavoriteImageView.setImageResource(R.drawable.ic_launcher_background);
+                } else {
+                    mFavorite = true;
+                    mFavoriteButton.setText(FAVORITE_IT);
+                    mFavoriteImageView.setImageResource(R.drawable.ic_launcher_foreground);
+                }
+            }
+        });
 
         // Preparing Reviews RecyclerView
         mReviewsRecyclerView = findViewById(R.id.rv_reviews_list);
@@ -63,13 +93,12 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
 
         mReviewsRecyclerView.setHasFixedSize(true);
 
-        if( mReviewList != null ) {
-            Log.d("INITIAL REVIEWS LIST", "" + mReviewList.size()+"YES");
+        if (mReviewList != null) {
+            Log.d("INITIAL REVIEWS LIST", "" + mReviewList.size() + "YES");
+        } else {
+            Log.d("INITIAL REVIEWS LIST", "" + 0 + "NO");
         }
-        else {
-            Log.d("INITIAL REVIEWS LIST", "" + 0+"NO");
-        }
-        mReviewsAdapter =  new ReviewsAdapter();
+        mReviewsAdapter = new ReviewsAdapter();
         mReviewsRecyclerView.setAdapter(mReviewsAdapter);
 
         // Preparing Trailers RecyclerView
@@ -84,11 +113,10 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
 
         mTrailersRecyclerView.setHasFixedSize(true);
 
-        if( mTrailersList != null ) {
-            Log.d("INITIAL TRAILER LIST", "" + mTrailersList.size()+"YES");
-        }
-        else {
-            Log.d("INITIAL TRAILER LIST", "" + 0+"NO");
+        if (mTrailersList != null) {
+            Log.d("INITIAL TRAILER LIST", "" + mTrailersList.size() + "YES");
+        } else {
+            Log.d("INITIAL TRAILER LIST", "" + 0 + "NO");
         }
 
         mTrailersAdapter = new TrailersAdapter(this);
@@ -96,7 +124,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
 
         Intent parentIntent = getIntent();
 
-        if( parentIntent.hasExtra("id")) {
+        if (parentIntent.hasExtra("id")) {
             String movieID = parentIntent.getStringExtra("id");
             String poster = parentIntent.getStringExtra("poster");
             String title = parentIntent.getStringExtra("title");
@@ -104,11 +132,22 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
             String rating = parentIntent.getStringExtra("rating");
             String release_date = parentIntent.getStringExtra("release_date");
 
+            mFavorite = Boolean.parseBoolean(parentIntent.getStringExtra("favorite"));
+
             setTitle("Movie Details");
             mTitleTextView.setText(title);
             mPlotTextView.setText(plot);
-            mRatingTextView.setText(String.format(getString(R.string.movie_rating),rating));
-            mDateTextView.setText(String.format(getString(R.string.movie_release_date),release_date));
+            mRatingTextView.setText(String.format(getString(R.string.movie_rating), rating));
+            mDateTextView.setText(String.format(getString(R.string.movie_release_date), release_date));
+
+            if( mFavorite ) {
+                mFavoriteButton.setText(UNFAVORITE_IT);
+                mFavoriteImageView.setImageResource(R.drawable.ic_launcher_foreground);
+
+            } else {
+                mFavoriteButton.setText(FAVORITE_IT);
+                mFavoriteImageView.setImageResource(R.drawable.ic_launcher_background);
+            }
 
             Picasso.get().load(NetworkUtils.getImageURL(poster)).fit().centerCrop().into(mMoviePoster);
 
@@ -133,12 +172,12 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
         Log.d("Trailer Name", trailer.getName());
         Intent intent = new Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse( NetworkUtils.getYouTubeURL(trailer.getKey()) )
+                Uri.parse(NetworkUtils.getYouTubeURL(trailer.getKey()))
         );
         startActivity(intent);
     }
 
-    class ReviewsAsyncTask extends AsyncTask<URL,Void, String> {
+    class ReviewsAsyncTask extends AsyncTask<URL, Void, List<Review>> {
         final private Context mContext;
 
         ReviewsAsyncTask(Context context) {
@@ -146,7 +185,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
         }
 
         @Override
-        protected String doInBackground(URL... urls) {
+        protected List<Review> doInBackground(URL... urls) {
             URL url = urls[0];
             String reviewsResults = null;
             try {
@@ -155,26 +194,38 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
                 e.printStackTrace();
             }
 
-            return reviewsResults;
+            try {
+                List<Review> reviews = JSONUtils.getReviewListFromJSON(reviewsResults);
+                for (int i = 0; i < reviews.size(); i++) {
+                    Review review = reviews.get(i);
+                    Review dbReview = mMovieDatabase.reviewDao().getReviewByID(review.getId());
+                    if (dbReview != null) {
+                        mMovieDatabase.reviewDao().updateReview(review);
+                    } else {
+                        mMovieDatabase.reviewDao().insertReview(review);
+                    }
+                }
+                return reviews;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            if ( s != null && !s.equals("")) {
-                try {
-                    mReviewList = JSONUtils.getReviewListFromJSON(s);
-                    mReviewsAdapter.setReviewList(mReviewList);
-                    mReviewsAdapter.notifyDataSetChanged();
-                    Log.d("UPDATED REVIEWS LIST",""+mReviewList.size());
-                } catch (JSONException e) {
-                    mReviewList = null;
-                    e.printStackTrace();
-                }
+        protected void onPostExecute(List<Review> reviews) {
+            if (reviews != null) {
+                mReviewList = reviews;
+                mReviewsAdapter.setReviewList(mReviewList);
+                mReviewsAdapter.notifyDataSetChanged();
+                Log.d("UPDATED REVIEWS LIST", "" + mReviewList.size());
             }
         }
     }
 
-    class TrailersAsyncTask extends AsyncTask<URL,Void, String> {
+    class TrailersAsyncTask extends AsyncTask<URL, Void, List<Trailer>> {
         final private Context mContext;
 
         TrailersAsyncTask(Context context) {
@@ -182,7 +233,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
         }
 
         @Override
-        protected String doInBackground(URL... urls) {
+        protected List<Trailer> doInBackground(URL... urls) {
             URL url = urls[0];
             String trailersResults = null;
             try {
@@ -191,21 +242,32 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
                 e.printStackTrace();
             }
 
-            return trailersResults;
+            try {
+                List<Trailer> trailers = JSONUtils.getTrailersListFromJSON(trailersResults);
+                for (int i = 0; i < trailers.size(); i++) {
+                    Trailer trailer = trailers.get(i);
+                    Trailer dbTrailer = mMovieDatabase.trailerDao().getTrailerByID(trailer.getId());
+                    if (dbTrailer != null) {
+                        mMovieDatabase.trailerDao().updateTrailer(trailer);
+                    } else {
+                        mMovieDatabase.trailerDao().insertTrailer(trailer);
+                    }
+                }
+
+                return trailers;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            if ( s != null && !s.equals("")) {
-                try {
-                    mTrailersList = JSONUtils.getTrailersListFromJSON(s);
-                    mTrailersAdapter.setTrailerList(mTrailersList);
-                    mTrailersAdapter.notifyDataSetChanged();
-                    Log.d("UPDATED TRAILERS LIST",""+mTrailersList.size());
-                } catch (JSONException e) {
-                    mTrailersList = null;
-                    e.printStackTrace();
-                }
+        protected void onPostExecute(List<Trailer> trailers) {
+            if (trailers != null) {
+                mTrailersList = trailers;
+                mTrailersAdapter.setTrailerList(mTrailersList);
+                mTrailersAdapter.notifyDataSetChanged();
+                Log.d("UPDATED TRAILERS LIST", "" + mTrailersList.size());
             }
         }
     }

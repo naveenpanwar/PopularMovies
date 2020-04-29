@@ -9,10 +9,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.example.popularmovies.database.DateConverter.getDateFromString;
 
 public class JSONUtils {
 
@@ -95,9 +96,5 @@ public class JSONUtils {
         }
 
         return trailersList;
-    }
-
-    public static Date getDateFromString(String dateString) throws ParseException {
-        return new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
     }
 }

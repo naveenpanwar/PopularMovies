@@ -17,6 +17,9 @@ public interface TrailerDao {
     @Query("SELECT * FROM trailer WHERE movie_id = :movieId ")
     List<Trailer> loadTrailers(int movieId);
 
+    @Query("SELECT * FROM trailer WHERE id = :trailerID")
+    Trailer getTrailerByID(String trailerID);
+
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void updateTrailer(Trailer trailer);
 

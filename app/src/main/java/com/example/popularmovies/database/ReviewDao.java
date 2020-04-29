@@ -17,6 +17,9 @@ public interface ReviewDao {
     @Query("SELECT * FROM review WHERE movie_id = :movieId ")
     List<Review> loadReviews(int movieId);
 
+    @Query("SELECT * FROM review WHERE id = :reviewID")
+    Review getReviewByID(String reviewID);
+
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void updateReview(Review review);
 
