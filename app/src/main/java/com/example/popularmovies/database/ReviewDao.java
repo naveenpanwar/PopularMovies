@@ -1,5 +1,6 @@
 package com.example.popularmovies.database;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -15,7 +16,7 @@ import java.util.List;
 public interface ReviewDao {
 
     @Query("SELECT * FROM review WHERE movie_id = :movieId ")
-    List<Review> loadReviews(int movieId);
+    LiveData<List<Review>> loadReviews(int movieId);
 
     @Query("SELECT * FROM review WHERE id = :reviewID")
     Review getReviewByID(String reviewID);

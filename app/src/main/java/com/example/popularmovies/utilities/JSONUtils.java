@@ -49,22 +49,24 @@ public class JSONUtils {
 
         List<Review> reviewList = new ArrayList<>();
 
-        JSONObject responseJSON = new JSONObject(json);
+        if ( json != null || json.length() > 0 ) {
+            JSONObject responseJSON = new JSONObject(json);
 
-        if ( responseJSON.has("results") ) {
-            JSONArray results = responseJSON.getJSONArray("results");
-            int mI = responseJSON.getInt("id");
-            for( int i=0; i<results.length(); i++) {
+            if (responseJSON.has("results")) {
+                JSONArray results = responseJSON.getJSONArray("results");
+                int mI = responseJSON.getInt("id");
+                for (int i = 0; i < results.length(); i++) {
 
-                JSONObject review = results.getJSONObject(i);
-                String id = review.getString("id");
-                String aU = review.getString("author");
-                String cO = review.getString("content");
-                String uRL = review.getString("url");
+                    JSONObject review = results.getJSONObject(i);
+                    String id = review.getString("id");
+                    String aU = review.getString("author");
+                    String cO = review.getString("content");
+                    String uRL = review.getString("url");
 
-                Review r = new Review(id, mI, aU, cO, uRL);
+                    Review r = new Review(id, mI, aU, cO, uRL);
 
-                reviewList.add(r);
+                    reviewList.add(r);
+                }
             }
         }
 
@@ -75,22 +77,24 @@ public class JSONUtils {
 
         List<Trailer> trailersList = new ArrayList<>();
 
-        JSONObject responseJSON = new JSONObject(json);
+        if ( json != null || json.length() > 0) {
+            JSONObject responseJSON = new JSONObject(json);
 
-        if ( responseJSON.has("results") ) {
-            JSONArray results = responseJSON.getJSONArray("results");
-            int mI = responseJSON.getInt("id");
-            for( int i=0; i<results.length(); i++) {
+            if (responseJSON.has("results")) {
+                JSONArray results = responseJSON.getJSONArray("results");
+                int mI = responseJSON.getInt("id");
+                for (int i = 0; i < results.length(); i++) {
 
-                JSONObject trailer = results.getJSONObject(i);
-                String id = trailer.getString("id");
-                String kY = trailer.getString("key");
-                String nM = trailer.getString("name");
-                String sT = trailer.getString("site");
+                    JSONObject trailer = results.getJSONObject(i);
+                    String id = trailer.getString("id");
+                    String kY = trailer.getString("key");
+                    String nM = trailer.getString("name");
+                    String sT = trailer.getString("site");
 
-                if ( sT.toLowerCase().equals("youtube") ) {
-                    Trailer t = new Trailer(id, mI, kY, nM, sT);
-                    trailersList.add(t);
+                    if (sT.toLowerCase().equals("youtube")) {
+                        Trailer t = new Trailer(id, mI, kY, nM, sT);
+                        trailersList.add(t);
+                    }
                 }
             }
         }

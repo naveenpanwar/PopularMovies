@@ -1,6 +1,8 @@
 package com.example.popularmovies;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,6 +21,8 @@ import com.example.popularmovies.database.MovieDatabase;
 import com.example.popularmovies.model.Movie;
 import com.example.popularmovies.model.Review;
 import com.example.popularmovies.model.Trailer;
+import com.example.popularmovies.network.FetchReviewsFromNetwork;
+import com.example.popularmovies.network.FetchTrailersFromNetwork;
 import com.example.popularmovies.utilities.JSONUtils;
 import com.example.popularmovies.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
@@ -33,17 +37,12 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
     private final static String MAKE_FAVORITE = "make favorite";
     private final static String REMOVE_FAVORITE = "remove favorite";
 
-    private static int mMovieID;
-
     // Views
     private ImageView mMoviePoster;
     private TextView mTitleTextView;
     private TextView mPlotTextView;
     private TextView mRatingTextView;
     private TextView mDateTextView;
-
-    // List of Reviews
-    private List<Review> mReviewList;
 
     private RecyclerView mReviewsRecyclerView;
     private ReviewsAdapter mReviewsAdapter;
@@ -60,7 +59,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
 
     // Database Stuff
     private MovieDatabase mMovieDatabase;
-    private boolean mFavorite;
+    private int mMovieId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,29 +76,50 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
 
         mMovieDatabase = MovieDatabase.getInstance(getApplicationContext());
 
+        Intent parentIntent = getIntent();
+
+        if (parentIntent.hasExtra("id")) {
+            mMovieId = Integer.parseInt(parentIntent.getStringExtra("id"));
+            MovieExecutors.getInstance().diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    final Movie movie = mMovieDatabase.movieDao().getMovieByIdSimple(mMovieId);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            populateUI(movie);
+                        }
+                    });
+                }
+            });
+
+            loadReviewsFromNetwork(mMovieId);
+            getReviews(mMovieId);
+            loadTrailersFromNetwork(mMovieId);
+            getTrailers(mMovieId);
+        } else {
+            Log.d("MOVIE DETAILS", "CANT GET ID");
+        }
+
+        LiveData<Movie> movieLiveData = mMovieDatabase.movieDao().getMovieById(mMovieId);
+        movieLiveData.observe(this, new Observer<Movie>() {
+            @Override
+            public void onChanged(Movie movie) {
+                mFavoriteButton.setText(movie.getFavorite() ? REMOVE_FAVORITE : MAKE_FAVORITE);
+                mFavoriteImageView.setImageResource(movie.getFavorite() ? R.drawable.ic_thumb_down : R.drawable.ic_thumb_up);
+            }
+        });
+
         mFavoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 MovieExecutors.getInstance().diskIO().execute(new Runnable() {
-                    Movie movie;
                     @Override
                     public void run() {
-                        movie = mMovieDatabase.movieDao().getMovieByIdSimple(mMovieID);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if( movie.getFavorite() ) {
-                                    mFavoriteButton.setText(REMOVE_FAVORITE);
-                                    mFavoriteImageView.setImageResource(R.drawable.ic_launcher_background);
-                                    movie.setFavorite(false);
-                                } else {
-                                    mFavoriteButton.setText(MAKE_FAVORITE);
-                                    mFavoriteImageView.setImageResource(R.drawable.ic_launcher_foreground);
-                                    movie.setFavorite(true);
-                                }
-                            }
-                        });
+                        final Movie movie = mMovieDatabase.movieDao().getMovieByIdSimple(mMovieId);
+                        movie.setFavorite(!movie.getFavorite());
+                        mMovieDatabase.movieDao().updateMovie(movie);
                     }
                 });
             }
@@ -110,14 +130,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
 
         LinearLayoutManager reviewsLayoutManager = new LinearLayoutManager(this);
         mReviewsRecyclerView.setLayoutManager(reviewsLayoutManager);
-
         mReviewsRecyclerView.setHasFixedSize(true);
 
-        if (mReviewList != null) {
-            Log.d("INITIAL REVIEWS LIST", "" + mReviewList.size() + "YES");
-        } else {
-            Log.d("INITIAL REVIEWS LIST", "" + 0 + "NO");
-        }
         mReviewsAdapter = new ReviewsAdapter();
         mReviewsRecyclerView.setAdapter(mReviewsAdapter);
 
@@ -133,162 +147,63 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
 
         mTrailersRecyclerView.setHasFixedSize(true);
 
-        if (mTrailersList != null) {
-            Log.d("INITIAL TRAILER LIST", "" + mTrailersList.size() + "YES");
-        } else {
-            Log.d("INITIAL TRAILER LIST", "" + 0 + "NO");
-        }
-
         mTrailersAdapter = new TrailersAdapter(this);
         mTrailersRecyclerView.setAdapter(mTrailersAdapter);
+    }
 
-        Intent parentIntent = getIntent();
+    private void populateUI(Movie movie) {
+        setTitle("Movie Details");
+        mTitleTextView.setText(movie.getOriginalTitle());
+        mPlotTextView.setText(movie.getPlot());
+        mRatingTextView.setText(String.format(getString(R.string.movie_rating), movie.getRating()));
+        mDateTextView.setText(String.format(getString(R.string.movie_release_date), movie.getReleaseDate()));
 
-        if (parentIntent.hasExtra("id")) {
-            mMovieID = Integer.parseInt(parentIntent.getStringExtra("id"));
-            String poster = parentIntent.getStringExtra("poster");
-            String title = parentIntent.getStringExtra("title");
-            String plot = parentIntent.getStringExtra("plot");
-            String rating = parentIntent.getStringExtra("rating");
-            String release_date = parentIntent.getStringExtra("release_date");
+        mFavoriteButton.setText(movie.getFavorite() ? REMOVE_FAVORITE : MAKE_FAVORITE);
+        mFavoriteImageView.setImageResource(movie.getFavorite() ? R.drawable.ic_thumb_down : R.drawable.ic_thumb_up);
 
-            mFavorite = Boolean.parseBoolean(parentIntent.getStringExtra("favorite"));
+        Picasso.get().load(NetworkUtils.getImageURL(movie.getPoster())).fit().centerCrop().into(mMoviePoster);
+    }
 
-            setTitle("Movie Details");
-            mTitleTextView.setText(title);
-            mPlotTextView.setText(plot);
-            mRatingTextView.setText(String.format(getString(R.string.movie_rating), rating));
-            mDateTextView.setText(String.format(getString(R.string.movie_release_date), release_date));
+    private void loadReviewsFromNetwork(int id) {
+        FetchReviewsFromNetwork.getReviews(getApplicationContext(), id);
+    }
 
-            if( mFavorite ) {
-                mFavoriteButton.setText(REMOVE_FAVORITE);
-                mFavoriteImageView.setImageResource(R.drawable.ic_launcher_foreground);
+    private void loadTrailersFromNetwork(int id) {
+        FetchTrailersFromNetwork.getTrailers(getApplicationContext(), id);
+    }
 
-            } else {
-                mFavoriteButton.setText(MAKE_FAVORITE);
-                mFavoriteImageView.setImageResource(R.drawable.ic_launcher_background);
+    private void getReviews(int id) {
+        LiveData<List<Review>> reviews = mMovieDatabase.reviewDao().loadReviews(id);
+        reviews.observe(this, new Observer<List<Review>>() {
+            @Override
+            public void onChanged(List<Review> reviews) {
+                if (reviews != null) {
+                    mReviewsAdapter.setReviewList(reviews);
+                    mReviewsAdapter.notifyDataSetChanged();
+                }
             }
-
-            Picasso.get().load(NetworkUtils.getImageURL(poster)).fit().centerCrop().into(mMoviePoster);
-
-            getReviews(String.valueOf(mMovieID));
-            getTrailers(String.valueOf(mMovieID));
-        }
+        });
     }
 
-    private void getReviews(String id) {
-        URL url = NetworkUtils.buildReviewsUrl(id);
-        new ReviewsAsyncTask(this).execute(url);
+    private void getTrailers(int id) {
+        LiveData<List<Trailer>> trailers = mMovieDatabase.trailerDao().loadTrailers(id);
+        trailers.observe(this, new Observer<List<Trailer>>() {
+            @Override
+            public void onChanged(List<Trailer> trailers) {
+                if (trailers != null) {
+                    mTrailersAdapter.setTrailerList(trailers);
+                    mTrailersAdapter.notifyDataSetChanged();
+                }
+            }
+        });
     }
 
-    private void getTrailers(String id) {
-        URL url = NetworkUtils.buildTrailersUrl(id);
-        new TrailersAsyncTask(this).execute(url);
-    }
-
-    @Override
     public void onTrailerItemClick(int clickedTrailerIndex) {
         Trailer trailer = mTrailersList.get(clickedTrailerIndex);
-        Log.d("Trailer Name", trailer.getName());
         Intent intent = new Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse(NetworkUtils.getYouTubeURL(trailer.getKey()))
         );
         startActivity(intent);
-    }
-
-    class ReviewsAsyncTask extends AsyncTask<URL, Void, List<Review>> {
-        final private Context mContext;
-
-        ReviewsAsyncTask(Context context) {
-            mContext = context;
-        }
-
-        @Override
-        protected List<Review> doInBackground(URL... urls) {
-            URL url = urls[0];
-            String reviewsResults = null;
-            try {
-                reviewsResults = NetworkUtils.fetchMovieDataFromHttp(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            try {
-                List<Review> reviews = JSONUtils.getReviewListFromJSON(reviewsResults);
-                for (int i = 0; i < reviews.size(); i++) {
-                    Review review = reviews.get(i);
-                    Review dbReview = mMovieDatabase.reviewDao().getReviewByID(review.getId());
-                    if (dbReview != null) {
-                        mMovieDatabase.reviewDao().updateReview(review);
-                    } else {
-                        mMovieDatabase.reviewDao().insertReview(review);
-                    }
-                }
-                return reviews;
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<Review> reviews) {
-            if (reviews != null) {
-                mReviewList = reviews;
-                mReviewsAdapter.setReviewList(mReviewList);
-                mReviewsAdapter.notifyDataSetChanged();
-                Log.d("UPDATED REVIEWS LIST", "" + mReviewList.size());
-            }
-        }
-    }
-
-    class TrailersAsyncTask extends AsyncTask<URL, Void, List<Trailer>> {
-        final private Context mContext;
-
-        TrailersAsyncTask(Context context) {
-            mContext = context;
-        }
-
-        @Override
-        protected List<Trailer> doInBackground(URL... urls) {
-            URL url = urls[0];
-            String trailersResults = null;
-            try {
-                trailersResults = NetworkUtils.fetchMovieDataFromHttp(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            try {
-                List<Trailer> trailers = JSONUtils.getTrailersListFromJSON(trailersResults);
-                for (int i = 0; i < trailers.size(); i++) {
-                    Trailer trailer = trailers.get(i);
-                    Trailer dbTrailer = mMovieDatabase.trailerDao().getTrailerByID(trailer.getId());
-                    if (dbTrailer != null) {
-                        mMovieDatabase.trailerDao().updateTrailer(trailer);
-                    } else {
-                        mMovieDatabase.trailerDao().insertTrailer(trailer);
-                    }
-                }
-
-                return trailers;
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<Trailer> trailers) {
-            if (trailers != null) {
-                mTrailersList = trailers;
-                mTrailersAdapter.setTrailerList(mTrailersList);
-                mTrailersAdapter.notifyDataSetChanged();
-                Log.d("UPDATED TRAILERS LIST", "" + mTrailersList.size());
-            }
-        }
     }
 }

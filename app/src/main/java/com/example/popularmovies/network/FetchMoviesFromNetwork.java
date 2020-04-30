@@ -1,8 +1,6 @@
 package com.example.popularmovies.network;
 
 import android.content.Context;
-import android.os.AsyncTask;
-import android.util.Log;
 
 import com.example.popularmovies.MovieExecutors;
 import com.example.popularmovies.database.MovieDatabase;
@@ -18,48 +16,50 @@ import java.text.ParseException;
 import java.util.List;
 
 public class FetchMoviesFromNetwork {
-    private static Context mContext;
+    private static URL popularMoviesUrl = NetworkUtils.buildPopularMoviesUrl();
+    private static URL topRatedMoviesUrl = NetworkUtils.buildTopRatedMoviesUrl();
 
-    public FetchMoviesFromNetwork(Context context) {
-        mContext = context;
+    public static void getPopularMovies(Context context) {
+        getMovies(popularMoviesUrl, context);
     }
 
-    public void getPopularMovies() {
-        URL popularMoviesUrl = NetworkUtils.buildPopularMoviesUrl();
-        getMovies(popularMoviesUrl);
+    public static void getTopRatedMovies(Context context) {
+        getMovies(topRatedMoviesUrl, context);
     }
 
-    public void getTopRatedMovies() {
-        URL topRatedMoviesUrl = NetworkUtils.buildTopRatedMoviesUrl();
-        getMovies(topRatedMoviesUrl);
-    }
+    private static void getMovies(final URL url, final Context context) {
+        MovieExecutors.getInstance().networkIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                MovieDatabase mDb = MovieDatabase.getInstance(context);
 
-    private void getMovies(URL url) {
-        MovieDatabase mDb = MovieDatabase.getInstance(mContext);
+                String popularMoviesResults = null;
+                try {
+                    popularMoviesResults = NetworkUtils.fetchMovieDataFromHttp(url);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-        String popularMoviesResults = null;
-        try {
-            popularMoviesResults = NetworkUtils.fetchMovieDataFromHttp(url);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            List<Movie> movies = JSONUtils.getMovieListFromJSON(popularMoviesResults);
-            for (int i = 0; i < movies.size(); i++) {
-                Movie networkMovie = movies.get(i);
-                Movie dbMovie = mDb.movieDao().getMovieByIdSimple(networkMovie.getId());
-                if (dbMovie != null) {
-                    networkMovie.setFavorite(dbMovie.getFavorite());
-                    mDb.movieDao().updateMovie(networkMovie);
-                } else {
-                    mDb.movieDao().insertMovie(networkMovie);
+                if (popularMoviesResults != null) {
+                    try {
+                        List<Movie> movies = JSONUtils.getMovieListFromJSON(popularMoviesResults);
+                        for (int i = 0; i < movies.size(); i++) {
+                            Movie networkMovie = movies.get(i);
+                            Movie dbMovie = mDb.movieDao().getMovieByIdSimple(networkMovie.getId());
+                            if (dbMovie != null) {
+                                networkMovie.setFavorite(dbMovie.getFavorite());
+                                mDb.movieDao().updateMovie(networkMovie);
+                            } else {
+                                mDb.movieDao().insertMovie(networkMovie);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        });
     }
 }

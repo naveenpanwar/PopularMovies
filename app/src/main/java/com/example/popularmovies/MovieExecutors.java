@@ -13,10 +13,10 @@ public class MovieExecutors {
     private final Executor mainThread;
     private final Executor networkIO;
 
-    private MovieExecutors(Executor diskIO, Executor mainThread, Executor networkIO) {
+    private MovieExecutors(Executor diskIO, Executor networkIO, Executor mainThread) {
         this.diskIO = diskIO;
-        this.mainThread = mainThread;
         this.networkIO = networkIO;
+        this.mainThread = mainThread;
     }
 
     public static MovieExecutors getInstance() {

@@ -31,9 +31,6 @@ import java.util.List;
 import static com.example.popularmovies.database.DateConverter.getStringFromDate;
 
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieItemClickListener {
-
-    private List<Movie> mPopularMovies;
-
     private RecyclerView mPopularMoviesRecyclerView;
     private MoviesAdapter mMoviesAdapter;
 
@@ -51,14 +48,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         mPopularMoviesRecyclerView.setLayoutManager(gridLayoutManager);
-
         mPopularMoviesRecyclerView.setHasFixedSize(true);
 
-        if (mPopularMovies != null) {
-            Log.d("INITIAL ADAPTER LIST", "" + mPopularMovies.size() + "YES");
-        } else {
-            Log.d("INITIAL ADAPTER LIST", "" + 0 + "NO");
-        }
         mMoviesAdapter = new MoviesAdapter(this);
         mPopularMoviesRecyclerView.setAdapter(mMoviesAdapter);
 
@@ -70,42 +61,33 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
 
     private void getPopularMoviesFromNetwork() {
         // populate popular movies from network to db
-        MovieExecutors.getInstance().networkIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                FetchMoviesFromNetwork fetchMoviesFromNetwork = new FetchMoviesFromNetwork(getApplicationContext());
-                fetchMoviesFromNetwork.getPopularMovies();
-            }
-        });
+        FetchMoviesFromNetwork.getPopularMovies(getApplicationContext());
     }
 
     private void getTopRatedMoviesFromNetwork() {
         // populate top rated movies from network to db
-        MovieExecutors.getInstance().networkIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                FetchMoviesFromNetwork fetchMoviesFromNetwork = new FetchMoviesFromNetwork(getApplicationContext());
-                fetchMoviesFromNetwork.getTopRatedMovies();
-            }
-        });
+        FetchMoviesFromNetwork.getTopRatedMovies(getApplicationContext());
     }
 
     private void getPopularMovies() {
-        LiveData<List<Movie>> movies = mMovieDatabase.movieDao().loadMoviesByTopRating();
+        LiveData<List<Movie>> movies = mMovieDatabase.movieDao().loadMoviesByPopularity();
         movies.observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
+                Log.d("MAIN OBSERVER", "DATASET CHANGED");
                 mMoviesAdapter.setMovieList(movies);
+                mMoviesAdapter.notifyDataSetChanged();
             }
         });
     }
 
     private void getTopRatedMovies() {
-        LiveData<List<Movie>> movies = mMovieDatabase.movieDao().loadMoviesByPopularity();
+        LiveData<List<Movie>> movies = mMovieDatabase.movieDao().loadMoviesByTopRating();
         movies.observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
                 mMoviesAdapter.setMovieList(movies);
+                mMoviesAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -131,12 +113,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     }
 
     @Override
-    public void onMovieItemClick(int clickedMovieIndex) {
+    public void onMovieItemClick(int movieId) {
         Intent intent = new Intent(this, MovieDetailsActivity.class);
-        Movie movie = mPopularMovies.get(clickedMovieIndex);
-
-        intent.putExtra("id", String.valueOf(movie.getId()));
-
+        intent.putExtra("id", String.valueOf(movieId));
+        Log.d("MOVIE MAIN ACT", String.valueOf(movieId));
         startActivity(intent);
     }
 }

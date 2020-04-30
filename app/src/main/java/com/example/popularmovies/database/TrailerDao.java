@@ -1,5 +1,6 @@
 package com.example.popularmovies.database;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -15,7 +16,7 @@ import java.util.List;
 public interface TrailerDao {
 
     @Query("SELECT * FROM trailer WHERE movie_id = :movieId ")
-    List<Trailer> loadTrailers(int movieId);
+    LiveData<List<Trailer>> loadTrailers(int movieId);
 
     @Query("SELECT * FROM trailer WHERE id = :trailerID")
     Trailer getTrailerByID(String trailerID);

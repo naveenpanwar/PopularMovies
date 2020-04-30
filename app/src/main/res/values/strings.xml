@@ -6,7 +6,7 @@
 
     <string name="movie_imageview_description">Movie Poster Image</string>
     <string name="label_for_plot_textview">Plot</string>
-    <string name="movie_rating">Rating : %1$s</string>
+    <string name="movie_rating">Rating : %.2f</string>
     <string name="movie_release_date">Release Date : %1$s</string>
     <string name="review_author_text">Stephen Campbell</string>
     <string name="review_content_text">

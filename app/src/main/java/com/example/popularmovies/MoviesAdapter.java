@@ -32,7 +32,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapterViewHolder>
     }
 
     public interface MovieItemClickListener {
-        void onMovieItemClick(int clickedMovieIndex);
+        void onMovieItemClick(int movieId);
     }
 
     @NonNull
@@ -46,10 +46,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapterViewHolder>
 
     @Override
     public void onBindViewHolder(@NonNull MoviesAdapterViewHolder holder, int position) {
-        Log.d("POSITION", position+"");
-        Uri imageUri = NetworkUtils.getImageURL(mMovieList.get(position).getPoster());
-        Log.d("IMAGE URI", imageUri.toString());
+        Movie movie = mMovieList.get(position);
+        Uri imageUri = NetworkUtils.getImageURL(movie.getPoster());
         holder.loadImage(imageUri);
+        holder.setMovieId(movie.getId());
+        holder.setFavoriteImage(movie.getFavorite()?R.drawable.ic_stars_pink:-1);
     }
 
     @Override

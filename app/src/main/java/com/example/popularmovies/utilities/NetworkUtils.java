@@ -47,13 +47,13 @@ public class NetworkUtils {
     }
 
     /* Please replace SecretCodes.getApiKey() with appropriate key */
-    public static URL buildReviewsUrl(String id) {
+    public static URL buildReviewsUrl(int id) {
         Uri.Builder uriBuilder = Uri.parse(TMDB_BASE_URL+id+"/reviews").buildUpon();
         return getURL(uriBuilder);
     }
 
     /* Please replace SecretCodes.getApiKey() with appropriate key */
-    public static URL buildTrailersUrl(String id) {
+    public static URL buildTrailersUrl(int id) {
         Uri.Builder uriBuilder = Uri.parse(TMDB_BASE_URL+id+"/videos").buildUpon();
         return getURL(uriBuilder);
     }

@@ -15,10 +15,10 @@ import java.util.List;
 @Dao
 public interface MovieDao {
 
-    @Query("SELECT * FROM movie ORDER BY popularity")
+    @Query("SELECT * FROM movie ORDER BY popularity DESC")
     LiveData<List<Movie>> loadMoviesByPopularity();
 
-    @Query("SELECT * FROM movie ORDER BY rating")
+    @Query("SELECT * FROM movie ORDER BY rating DESC")
     LiveData<List<Movie>> loadMoviesByTopRating();
 
     @Query("SELECT * FROM movie WHERE id = :movieID")
