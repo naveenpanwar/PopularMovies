@@ -1,5 +1,6 @@
 package com.example.popularmovies.database;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -15,13 +16,16 @@ import java.util.List;
 public interface MovieDao {
 
     @Query("SELECT * FROM movie ORDER BY popularity")
-    List<Movie> loadMoviesByPopularity();
+    LiveData<List<Movie>> loadMoviesByPopularity();
 
     @Query("SELECT * FROM movie ORDER BY rating")
-    List<Movie> loadMoviesByTopRating();
+    LiveData<List<Movie>> loadMoviesByTopRating();
 
     @Query("SELECT * FROM movie WHERE id = :movieID")
-    Movie getMovieById(int movieID);
+    LiveData<Movie> getMovieById(int movieID);
+
+    @Query("SELECT * FROM movie WHERE id = :movieID")
+    Movie getMovieByIdSimple(int movieID);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void updateMovie(Movie movie);

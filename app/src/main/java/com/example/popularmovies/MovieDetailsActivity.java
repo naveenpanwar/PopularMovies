@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.popularmovies.database.MovieDatabase;
+import com.example.popularmovies.model.Movie;
 import com.example.popularmovies.model.Review;
 import com.example.popularmovies.model.Trailer;
 import com.example.popularmovies.utilities.JSONUtils;
@@ -29,8 +30,12 @@ import java.net.URL;
 import java.util.List;
 
 public class MovieDetailsActivity extends AppCompatActivity implements TrailersAdapter.TrailerItemClickListener {
-    private final static String FAVORITE_IT = "favorite it";
-    private final static String UNFAVORITE_IT = "unfavorite it";
+    private final static String MAKE_FAVORITE = "make favorite";
+    private final static String REMOVE_FAVORITE = "remove favorite";
+
+    private static int mMovieID;
+
+    // Views
     private ImageView mMoviePoster;
     private TextView mTitleTextView;
     private TextView mPlotTextView;
@@ -49,9 +54,11 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
     private RecyclerView mTrailersRecyclerView;
     private TrailersAdapter mTrailersAdapter;
 
+    // Favorite Button
     private Button mFavoriteButton;
     private ImageView mFavoriteImageView;
 
+    // Database Stuff
     private MovieDatabase mMovieDatabase;
     private boolean mFavorite;
 
@@ -73,15 +80,28 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
         mFavoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if( mFavorite ) {
-                    mFavorite = false;
-                    mFavoriteButton.setText(UNFAVORITE_IT);
-                    mFavoriteImageView.setImageResource(R.drawable.ic_launcher_background);
-                } else {
-                    mFavorite = true;
-                    mFavoriteButton.setText(FAVORITE_IT);
-                    mFavoriteImageView.setImageResource(R.drawable.ic_launcher_foreground);
-                }
+
+                MovieExecutors.getInstance().diskIO().execute(new Runnable() {
+                    Movie movie;
+                    @Override
+                    public void run() {
+                        movie = mMovieDatabase.movieDao().getMovieByIdSimple(mMovieID);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if( movie.getFavorite() ) {
+                                    mFavoriteButton.setText(REMOVE_FAVORITE);
+                                    mFavoriteImageView.setImageResource(R.drawable.ic_launcher_background);
+                                    movie.setFavorite(false);
+                                } else {
+                                    mFavoriteButton.setText(MAKE_FAVORITE);
+                                    mFavoriteImageView.setImageResource(R.drawable.ic_launcher_foreground);
+                                    movie.setFavorite(true);
+                                }
+                            }
+                        });
+                    }
+                });
             }
         });
 
@@ -125,7 +145,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
         Intent parentIntent = getIntent();
 
         if (parentIntent.hasExtra("id")) {
-            String movieID = parentIntent.getStringExtra("id");
+            mMovieID = Integer.parseInt(parentIntent.getStringExtra("id"));
             String poster = parentIntent.getStringExtra("poster");
             String title = parentIntent.getStringExtra("title");
             String plot = parentIntent.getStringExtra("plot");
@@ -141,18 +161,18 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
             mDateTextView.setText(String.format(getString(R.string.movie_release_date), release_date));
 
             if( mFavorite ) {
-                mFavoriteButton.setText(UNFAVORITE_IT);
+                mFavoriteButton.setText(REMOVE_FAVORITE);
                 mFavoriteImageView.setImageResource(R.drawable.ic_launcher_foreground);
 
             } else {
-                mFavoriteButton.setText(FAVORITE_IT);
+                mFavoriteButton.setText(MAKE_FAVORITE);
                 mFavoriteImageView.setImageResource(R.drawable.ic_launcher_background);
             }
 
             Picasso.get().load(NetworkUtils.getImageURL(poster)).fit().centerCrop().into(mMoviePoster);
 
-            getReviews(movieID);
-            getTrailers(movieID);
+            getReviews(String.valueOf(mMovieID));
+            getTrailers(String.valueOf(mMovieID));
         }
     }
 

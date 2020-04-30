@@ -1,6 +1,8 @@
 package com.example.popularmovies;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,6 +17,7 @@ import android.view.MenuItem;
 
 import com.example.popularmovies.database.MovieDatabase;
 import com.example.popularmovies.model.Movie;
+import com.example.popularmovies.network.FetchMoviesFromNetwork;
 import com.example.popularmovies.utilities.JSONUtils;
 import com.example.popularmovies.utilities.NetworkUtils;
 
@@ -58,16 +61,53 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         }
         mMoviesAdapter = new MoviesAdapter(this);
         mPopularMoviesRecyclerView.setAdapter(mMoviesAdapter);
+
+        getPopularMoviesFromNetwork();
+        getTopRatedMoviesFromNetwork();
+
+        getPopularMovies();
+    }
+
+    private void getPopularMoviesFromNetwork() {
+        // populate popular movies from network to db
+        MovieExecutors.getInstance().networkIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                FetchMoviesFromNetwork fetchMoviesFromNetwork = new FetchMoviesFromNetwork(getApplicationContext());
+                fetchMoviesFromNetwork.getPopularMovies();
+            }
+        });
+    }
+
+    private void getTopRatedMoviesFromNetwork() {
+        // populate top rated movies from network to db
+        MovieExecutors.getInstance().networkIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                FetchMoviesFromNetwork fetchMoviesFromNetwork = new FetchMoviesFromNetwork(getApplicationContext());
+                fetchMoviesFromNetwork.getTopRatedMovies();
+            }
+        });
     }
 
     private void getPopularMovies() {
-        URL url = NetworkUtils.buildPopularMoviesUrl();
-        new PopularMoviesAsyncTask(this).execute(url);
+        LiveData<List<Movie>> movies = mMovieDatabase.movieDao().loadMoviesByTopRating();
+        movies.observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(List<Movie> movies) {
+                mMoviesAdapter.setMovieList(movies);
+            }
+        });
     }
 
     private void getTopRatedMovies() {
-        URL url = NetworkUtils.buildTopRatedMoviesUrl();
-        new PopularMoviesAsyncTask(this).execute(url);
+        LiveData<List<Movie>> movies = mMovieDatabase.movieDao().loadMoviesByPopularity();
+        movies.observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(List<Movie> movies) {
+                mMoviesAdapter.setMovieList(movies);
+            }
+        });
     }
 
 
@@ -96,65 +136,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         Movie movie = mPopularMovies.get(clickedMovieIndex);
 
         intent.putExtra("id", String.valueOf(movie.getId()));
-        intent.putExtra("poster", movie.getPoster());
-        intent.putExtra("title", movie.getOriginalTitle());
-        intent.putExtra("plot", movie.getPlot());
-        intent.putExtra("rating", String.valueOf(movie.getRating()));
-        intent.putExtra("release_date", getStringFromDate(movie.getReleaseDate()));
-        intent.putExtra("favorite", String.valueOf(movie.getFavorite()));
 
         startActivity(intent);
-    }
-
-
-    class PopularMoviesAsyncTask extends AsyncTask<URL, Void, List<Movie>> {
-        final private Context mContext;
-
-        PopularMoviesAsyncTask(Context context) {
-            mContext = context;
-        }
-
-        List<Movie> movies;
-
-        @Override
-        protected List<Movie> doInBackground(URL... urls) {
-            URL url = urls[0];
-            String popularMoviesResults = null;
-            try {
-                popularMoviesResults = NetworkUtils.fetchMovieDataFromHttp(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            try {
-                List<Movie> movies = JSONUtils.getMovieListFromJSON(popularMoviesResults);
-                for ( int i=0; i < movies.size(); i++) {
-                    Movie networkMovie = movies.get(i);
-                    Movie dbMovie = mMovieDatabase.movieDao().getMovieById(networkMovie.getId());
-                    if(  dbMovie != null) {
-                        networkMovie.setFavorite(dbMovie.getFavorite());
-                        mMovieDatabase.movieDao().updateMovie(networkMovie);
-                    } else {
-                        mMovieDatabase.movieDao().insertMovie(networkMovie);
-                    }
-                }
-                return movies;
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<Movie> movies) {
-            if (movies != null) {
-                mPopularMovies = movies;
-                mMoviesAdapter.setMovieList(movies);
-                mMoviesAdapter.notifyDataSetChanged();
-                Log.d("UPDATED LIST", "" + mPopularMovies.size());
-            }
-        }
     }
 }
