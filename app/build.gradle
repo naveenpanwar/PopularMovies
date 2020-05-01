@@ -42,7 +42,7 @@ dependencies {
     // Annotation processor
     annotationProcessor "androidx.room:room-compiler:$room_version"
     // ViewModel
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
     // LiveData
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
 }

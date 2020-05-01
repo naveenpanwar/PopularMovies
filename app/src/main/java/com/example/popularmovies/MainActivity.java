@@ -3,6 +3,7 @@ package com.example.popularmovies;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,6 +18,7 @@ import android.view.MenuItem;
 
 import com.example.popularmovies.database.MovieDatabase;
 import com.example.popularmovies.model.Movie;
+import com.example.popularmovies.model.MovieViewModel;
 import com.example.popularmovies.network.FetchMoviesFromNetwork;
 import com.example.popularmovies.utilities.JSONUtils;
 import com.example.popularmovies.utilities.NetworkUtils;
@@ -35,11 +37,15 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private MoviesAdapter mMoviesAdapter;
 
     private MovieDatabase mMovieDatabase;
+    MovieViewModel movieViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        movieViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(
+                getApplication()).create(MovieViewModel.class);
 
         mPopularMoviesRecyclerView = findViewById(R.id.rv_popular_movies);
         mMovieDatabase = MovieDatabase.getInstance(getApplicationContext());
@@ -70,8 +76,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     }
 
     private void getPopularMovies() {
-        LiveData<List<Movie>> movies = mMovieDatabase.movieDao().loadMoviesByPopularity();
-        movies.observe(this, new Observer<List<Movie>>() {
+        movieViewModel.getPopularMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
                 Log.d("MAIN OBSERVER", "DATASET CHANGED");
@@ -82,8 +87,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     }
 
     private void getTopRatedMovies() {
-        LiveData<List<Movie>> movies = mMovieDatabase.movieDao().loadMoviesByTopRating();
-        movies.observe(this, new Observer<List<Movie>>() {
+        movieViewModel.getTopRatedMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
                 mMoviesAdapter.setMovieList(movies);
@@ -93,8 +97,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     }
 
     private void getFavoriteMovies() {
-        LiveData<List<Movie>> movies = mMovieDatabase.movieDao().loadMoviesByFavorite();
-        movies.observe(this, new Observer<List<Movie>>() {
+        movieViewModel.getFavouriteMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
                 mMoviesAdapter.setMovieList(movies);
@@ -128,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     public void onMovieItemClick(int movieId) {
         Intent intent = new Intent(this, MovieDetailsActivity.class);
         intent.putExtra("id", String.valueOf(movieId));
-        Log.d("MOVIE MAIN ACT", String.valueOf(movieId));
         startActivity(intent);
     }
 }
