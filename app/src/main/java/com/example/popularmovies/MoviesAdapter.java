@@ -50,6 +50,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapterViewHolder>
         Uri imageUri = NetworkUtils.getImageURL(movie.getPoster());
         holder.loadImage(imageUri);
         holder.setMovieId(movie.getId());
+        // TODO: find way to uncache recycler view image
         holder.setFavoriteImage(movie.getFavorite()?R.drawable.ic_stars_pink:-1);
     }
 

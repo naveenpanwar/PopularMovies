@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         getPopularMoviesFromNetwork();
         getTopRatedMoviesFromNetwork();
 
-        getPopularMovies();
+        getTopRatedMovies();
     }
 
     private void getPopularMoviesFromNetwork() {
@@ -92,6 +92,17 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         });
     }
 
+    private void getFavoriteMovies() {
+        LiveData<List<Movie>> movies = mMovieDatabase.movieDao().loadMoviesByFavorite();
+        movies.observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(List<Movie> movies) {
+                mMoviesAdapter.setMovieList(movies);
+                mMoviesAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -105,10 +116,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         int id = item.getItemId();
         if (id == R.id.action_sort_by_popularity) {
             getPopularMovies();
+        } else if (id == R.id.action_sort_by_favorite) {
+            getFavoriteMovies();
         } else {
             getTopRatedMovies();
         }
-
         return true;
     }
 

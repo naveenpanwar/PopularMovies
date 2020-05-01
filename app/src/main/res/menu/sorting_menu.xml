@@ -9,4 +9,8 @@
         android:id="@+id/action_sort_by_rating"
         android:title="@string/sort_by_rating" />
 
+    <item android:orderInCategory="3"
+        android:id="@+id/action_sort_by_favorite"
+        android:title="@string/sort_by_favorite" />
+
 </menu>
