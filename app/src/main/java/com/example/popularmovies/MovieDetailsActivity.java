@@ -80,19 +80,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
 
         if (parentIntent.hasExtra("id")) {
             mMovieId = Integer.parseInt(parentIntent.getStringExtra("id"));
-            MovieExecutors.getInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    final Movie movie = mMovieDatabase.movieDao().getMovieByIdSimple(mMovieId);
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            populateUI(movie);
-                        }
-                    });
-                }
-            });
 
             loadReviewsFromNetwork(mMovieId);
             getReviews(mMovieId);
@@ -106,6 +93,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
         movieLiveData.observe(this, new Observer<Movie>() {
             @Override
             public void onChanged(Movie movie) {
+                populateUI(movie);
                 mFavoriteButton.setText(movie.getFavorite() ? REMOVE_FAVORITE : MAKE_FAVORITE);
                 mFavoriteImageView.setImageResource(movie.getFavorite() ? R.drawable.ic_thumb_down : R.drawable.ic_thumb_up);
             }

@@ -38,10 +38,6 @@ public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements 
         movieFavoriteImageView.setImageResource(drawableID);
     }
 
-    boolean getFavouriteImageStatus() {
-        return this.movieFavoriteImageView.getDrawable() == null;
-    }
-
     void setMovieId(int id) {
         this.movieId = id;
     }
