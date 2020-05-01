@@ -35,10 +35,11 @@ public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements 
     }
 
     void setFavoriteImage(int drawableID) {
-        // TODO: Recyclerview caches movie favorite icons
-        if( drawableID >= 0) {
-            movieFavoriteImageView.setImageResource(drawableID);
-        }
+        movieFavoriteImageView.setImageResource(drawableID);
+    }
+
+    boolean getFavouriteImageStatus() {
+        return this.movieFavoriteImageView.getDrawable() == null;
     }
 
     void setMovieId(int id) {

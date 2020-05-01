@@ -18,7 +18,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapterViewHolder>  {
+public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapterViewHolder> {
     private List<Movie> mMovieList;
 
     final private MovieItemClickListener mMovieItemClickListener;
@@ -40,7 +40,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapterViewHolder>
     public MoviesAdapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         boolean attachToParentImmediately = false;
-        View view = LayoutInflater.from(context).inflate(R.layout.movie_list_item,parent, attachToParentImmediately);
+        View view = LayoutInflater.from(context).inflate(R.layout.movie_list_item, parent, attachToParentImmediately);
         return new MoviesAdapterViewHolder(view, mMovieItemClickListener);
     }
 
@@ -50,13 +50,15 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapterViewHolder>
         Uri imageUri = NetworkUtils.getImageURL(movie.getPoster());
         holder.loadImage(imageUri);
         holder.setMovieId(movie.getId());
-        // TODO: find way to uncache recycler view image
-        holder.setFavoriteImage(movie.getFavorite()?R.drawable.ic_stars_pink:-1);
+        holder.setFavoriteImage(android.R.color.transparent);
+        if (movie.getFavorite()) {
+            holder.setFavoriteImage(R.drawable.ic_stars_pink);
+        }
     }
 
     @Override
     public int getItemCount() {
-        if ( mMovieList != null ) {
+        if (mMovieList != null) {
             return mMovieList.size();
         }
         return 0;
