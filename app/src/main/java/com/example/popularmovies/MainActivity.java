@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private RecyclerView mPopularMoviesRecyclerView;
     private MoviesAdapter mMoviesAdapter;
 
-    private MovieDatabase mMovieDatabase;
     MovieViewModel movieViewModel;
 
     @Override
@@ -48,7 +47,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 getApplication()).create(MovieViewModel.class);
 
         mPopularMoviesRecyclerView = findViewById(R.id.rv_popular_movies);
-        mMovieDatabase = MovieDatabase.getInstance(getApplicationContext());
 
         getPopularMovies();
 
@@ -79,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         movieViewModel.getPopularMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
-                Log.d("MAIN OBSERVER", "DATASET CHANGED");
                 mMoviesAdapter.setMovieList(movies);
                 mMoviesAdapter.notifyDataSetChanged();
             }

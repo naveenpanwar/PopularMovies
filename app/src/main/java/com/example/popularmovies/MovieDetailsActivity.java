@@ -3,6 +3,7 @@ package com.example.popularmovies;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,8 +20,11 @@ import android.widget.TextView;
 
 import com.example.popularmovies.database.MovieDatabase;
 import com.example.popularmovies.model.Movie;
+import com.example.popularmovies.model.MovieViewModel;
 import com.example.popularmovies.model.Review;
+import com.example.popularmovies.model.ReviewViewModel;
 import com.example.popularmovies.model.Trailer;
+import com.example.popularmovies.model.TrailerViewModel;
 import com.example.popularmovies.network.FetchReviewsFromNetwork;
 import com.example.popularmovies.network.FetchTrailersFromNetwork;
 import com.example.popularmovies.utilities.JSONUtils;
@@ -64,6 +68,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MovieViewModel movieViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(
+                getApplication()).create(MovieViewModel.class);
         setContentView(R.layout.activity_movie_details);
 
         mMoviePoster = findViewById(R.id.iv_detail_movie_poster);
@@ -89,8 +95,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
             Log.d("MOVIE DETAILS", "CANT GET ID");
         }
 
-        LiveData<Movie> movieLiveData = mMovieDatabase.movieDao().getMovieById(mMovieId);
-        movieLiveData.observe(this, new Observer<Movie>() {
+        movieViewModel.getMovie(mMovieId).observe(this, new Observer<Movie>() {
             @Override
             public void onChanged(Movie movie) {
                 populateUI(movie);
@@ -161,8 +166,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
     }
 
     private void getReviews(int id) {
-        LiveData<List<Review>> reviews = mMovieDatabase.reviewDao().loadReviews(id);
-        reviews.observe(this, new Observer<List<Review>>() {
+        ReviewViewModel reviewViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(
+                getApplication()).create(ReviewViewModel.class);
+        reviewViewModel.getReviews(id).observe(this, new Observer<List<Review>>() {
             @Override
             public void onChanged(List<Review> reviews) {
                 if (reviews != null) {
@@ -174,8 +180,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
     }
 
     private void getTrailers(int id) {
-        LiveData<List<Trailer>> trailers = mMovieDatabase.trailerDao().loadTrailers(id);
-        trailers.observe(this, new Observer<List<Trailer>>() {
+        TrailerViewModel trailerViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(
+                getApplication()).create(TrailerViewModel.class);
+        trailerViewModel.getTrailers(id).observe(this, new Observer<List<Trailer>>() {
             @Override
             public void onChanged(List<Trailer> trailers) {
                 if (trailers != null) {
