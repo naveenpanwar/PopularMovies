@@ -25,7 +25,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapterViewHol
     }
 
     public interface TrailerItemClickListener {
-        void onTrailerItemClick(int clickedTrailerIndex);
+        void onTrailerItemClick(String key);
     }
 
     void setTrailerList(List<Trailer> trailers) {
@@ -43,12 +43,11 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapterViewHol
 
     @Override
     public void onBindViewHolder(@NonNull TrailersAdapterViewHolder holder, int position) {
-        Log.d("POSITION", position+"");
         Trailer trailer = mTrailersList.get(position);
         Uri imageUri = NetworkUtils.getYouTubeImageURL(trailer.getKey());
-        Log.d("IMAGE URI", imageUri.toString());
         holder.loadImage(imageUri);
         holder.setTrailerTitleTextView(trailer.getName());
+        holder.setKey(trailer.getKey());
     }
 
     @Override

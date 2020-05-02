@@ -14,6 +14,7 @@ import com.squareup.picasso.Picasso;
 
 public class TrailersAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
+    private String trailerYouTubeKey;
     final private TextView trailerTitleTextView;
     final private ImageView trailerImageView;
     final private TrailersAdapter.TrailerItemClickListener mTrailerItemClickListener;
@@ -50,9 +51,11 @@ public class TrailersAdapterViewHolder extends RecyclerView.ViewHolder implement
                 });
     }
 
+    void setKey(String key) {
+        this.trailerYouTubeKey = key;
+    }
     @Override
     public void onClick(View v) {
-        int clickedPosition = getAdapterPosition();
-        mTrailerItemClickListener.onTrailerItemClick(clickedPosition);
+        mTrailerItemClickListener.onTrailerItemClick(trailerYouTubeKey);
     }
 }

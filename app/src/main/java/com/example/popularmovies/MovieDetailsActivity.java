@@ -51,9 +51,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
     private RecyclerView mReviewsRecyclerView;
     private ReviewsAdapter mReviewsAdapter;
 
-    // List of Trailers
-    private List<Trailer> mTrailersList;
-
     private RecyclerView mTrailersRecyclerView;
     private TrailersAdapter mTrailersAdapter;
 
@@ -193,11 +190,10 @@ public class MovieDetailsActivity extends AppCompatActivity implements TrailersA
         });
     }
 
-    public void onTrailerItemClick(int clickedTrailerIndex) {
-        Trailer trailer = mTrailersList.get(clickedTrailerIndex);
+    public void onTrailerItemClick(String key) {
         Intent intent = new Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse(NetworkUtils.getYouTubeURL(trailer.getKey()))
+                Uri.parse(NetworkUtils.getYouTubeURL(key))
         );
         startActivity(intent);
     }
